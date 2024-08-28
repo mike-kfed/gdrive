@@ -23,18 +23,18 @@ jobs:
 
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          target: arm-unknown-linux-musleabi
+          target: armv7-unknown-linux-musleabihf
 
       - name: Build application
         run: |
           sudo apt update && sudo apt install -y clang llvm
           export TARGET_CC=clang
           export TARGET_AR=llvm-ar
-          cargo build --release --target=arm-unknown-linux-musleabi
+          cargo build --release --target=armv7-unknown-linux-musleabihf
 
       - name: Create archive
         run: |
-          tar -czf $ARCHIVE_NAME -C target/arm-unknown-linux-musleabi/release $APP_NAME
+          tar -czf $ARCHIVE_NAME -C target/armv7-unknown-linux-musleabihf/release $APP_NAME
 
       - name: Upload release asset
         uses: actions/upload-release-asset@v1
