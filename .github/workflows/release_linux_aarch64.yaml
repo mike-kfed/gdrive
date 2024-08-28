@@ -10,7 +10,7 @@ env:
 
 jobs:
   build:
-    runs-on: rust:bookworm
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -21,13 +21,16 @@ jobs:
           UPLOAD_URL="$(jq -r '.release.upload_url' "$GITHUB_EVENT_PATH" | sed -e "s/{?name,label}$/?name=${ARCHIVE_NAME}/")"
           echo "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
 
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: aarch64-unknown-linux-musl
+
       - name: Build application
         run: |
-          export TARGET_CC=clang-15
-          export TARGET_AR=llvm-ar-15
-          rustup target add aarch64-unknown-linux-musl
+          apt update && apt install -y clang llvm
+          export TARGET_CC=clang
+          export TARGET_AR=llvm-ar
           cargo build --release --target=aarch64-unknown-linux-musl
-          docker run --rm -t -v $HOME/.cargo/registry/:/root/.cargo/registry -v "$(pwd)":/volume clux/muslrust:stable cargo build --release
 
       - name: Create archive
         run: |
