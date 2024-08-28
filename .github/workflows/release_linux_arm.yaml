@@ -1,4 +1,4 @@
-name: Build and upload release (linux x86_64)
+name: Build and upload release (linux arm 32bit)
 
 on:
   release:
@@ -6,7 +6,7 @@ on:
 
 env:
   APP_NAME: gdrive
-  ARCHIVE_NAME: gdrive_linux-x64.tar.gz
+  ARCHIVE_NAME: gdrive_linux-arm.tar.gz
 
 jobs:
   build:
@@ -21,13 +21,20 @@ jobs:
           UPLOAD_URL="$(jq -r '.release.upload_url' "$GITHUB_EVENT_PATH" | sed -e "s/{?name,label}$/?name=${ARCHIVE_NAME}/")"
           echo "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
 
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: armv7-unknown-linux-musleabihf
+
       - name: Build application
         run: |
-          docker run --rm -t -v $HOME/.cargo/registry/:/root/.cargo/registry -v "$(pwd)":/volume clux/muslrust:stable cargo build --release
+          sudo apt update && sudo apt install -y clang llvm
+          export TARGET_CC=clang
+          export TARGET_AR=llvm-ar
+          cargo build --release --target=armv7-unknown-linux-musleabihf
 
       - name: Create archive
         run: |
-          tar -czf $ARCHIVE_NAME -C target/x86_64-unknown-linux-musl/release $APP_NAME
+          tar -czf $ARCHIVE_NAME -C target/armv7-unknown-linux-musleabihf/release $APP_NAME
 
       - name: Upload release asset
         uses: actions/upload-release-asset@v1
