@@ -27,7 +27,7 @@ jobs:
 
       - name: Build application
         run: |
-          apt update && apt install -y clang llvm
+          sudo apt update && sudo apt install -y clang llvm
           export TARGET_CC=clang
           export TARGET_AR=llvm-ar
           cargo build --release --target=aarch64-unknown-linux-musl
