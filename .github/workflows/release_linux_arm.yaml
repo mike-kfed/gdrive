@@ -1,4 +1,4 @@
-name: Build and upload release (linux aarch64)
+name: Build and upload release (linux arm 32bit)
 
 on:
   release:
